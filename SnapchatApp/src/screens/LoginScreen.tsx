@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+
 import { useAuthStore } from '../store/authStore';
 import Button from '../components/Button';
 import { colors, typography, spacing, borderRadius } from '../utils/theme';
@@ -32,14 +33,12 @@ const LoginScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.black} />
       
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.logo}></Text>
         <Text style={styles.title}>SNAPCHAT</Text>
         <Text style={styles.subtitle}>Captures the moment</Text>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.welcomeText}>Bienvenido</Text>
@@ -66,7 +65,6 @@ const LoginScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.version}>ETAPA 4: UI Premium </Text>
       </View>
