@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -6,7 +6,9 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { colors, typography, borderRadius, shadows } from '../utils/theme';
 
 interface ButtonProps {
@@ -28,6 +30,27 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
   style,
 }) => {
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Animated.spring(scaleValue, {
+      toValue: 0.95,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
   const buttonStyle = [
     styles.base,
     styles[variant],
@@ -44,21 +67,25 @@ const Button: React.FC<ButtonProps> = ({
   ];
 
   return (
-    <TouchableOpacity
-      style={buttonStyle}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
-    >
-      {loading ? (
-        <ActivityIndicator 
-          color={variant === 'primary' ? colors.black : colors.snapchat} 
-          size="small" 
-        />
-      ) : (
-        <Text style={textStyle}>{title}</Text>
-      )}
-    </TouchableOpacity>
+    <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+      <TouchableOpacity
+        style={buttonStyle}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        activeOpacity={1}
+      >
+        {loading ? (
+          <ActivityIndicator 
+            color={variant === 'primary' ? colors.black : colors.snapchat} 
+            size="small" 
+          />
+        ) : (
+          <Text style={textStyle}>{title}</Text>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -70,6 +97,7 @@ const styles = StyleSheet.create({
     ...shadows.small,
   },
   
+  // Variants
   primary: {
     backgroundColor: colors.snapchat,
   },
@@ -82,6 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   
+  // Sizes
   small: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -98,10 +127,12 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   
+  // States
   disabled: {
     opacity: 0.5,
   },
   
+  // Text styles
   text: {
     fontWeight: '600',
     textAlign: 'center',
@@ -119,6 +150,7 @@ const styles = StyleSheet.create({
     ...typography.callout,
   },
   
+  // Text sizes
   smallText: {
     fontSize: 14,
   },

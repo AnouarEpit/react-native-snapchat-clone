@@ -18,12 +18,13 @@ export interface RegisterCredentials {
   username: string;
 }
 
+// Nouveaux types pour les snaps
 export interface Snap {
   id: string;
   from: string;
   to: string;
-  image: string; 
-  duration: number; 
+  image: string; // URI local ou base64
+  duration: number; // en secondes (1-10)
   createdAt: string;
   viewed?: boolean;
   viewedAt?: string;
@@ -42,10 +43,25 @@ export interface Friend {
   profilePicture?: string;
 }
 
+// Store types
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<void>;
+  logout: () => Promise<void>;
+  loadStoredAuth: () => Promise<void>;
+  toggleApiMode?: () => void;
+}
+
+// Navigation types
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   Camera: undefined;
   SendSnap: { imageUri: string };
   ViewSnap: { snap: Snap };
+  StoriesViewer: { userStories: any; initialStoryIndex: number };
 };
