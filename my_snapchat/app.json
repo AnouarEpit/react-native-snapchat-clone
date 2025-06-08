@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "MY_SNAPCHAT",
+    "slug": "my-snapchat",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#667eea"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.epitech.mysnapchat",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Cette application a besoin d'accéder à la caméra pour prendre des photos et vidéos.",
+        "NSPhotoLibraryUsageDescription": "Cette application a besoin d'accéder à vos photos pour partager des images.",
+        "NSMicrophoneUsageDescription": "Cette application a besoin d'accéder au microphone pour enregistrer des vidéos avec du son."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#667eea"
+      },
+      "package": "com.epitech.mysnapchat",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "https://snapchat.epihub.eu",
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Autoriser MY_SNAPCHAT à accéder à votre caméra pour prendre des photos et vidéos."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Autoriser MY_SNAPCHAT à accéder à vos photos pour partager des images.",
+          "savePhotosPermission": "Autoriser MY_SNAPCHAT à sauvegarder des photos dans votre galerie."
+        }
+      ]
+    ]
+  }
+}
