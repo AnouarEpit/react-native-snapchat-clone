@@ -13,12 +13,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../../App";
+import OptimizedInput from "../components/OptimizedInput";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "CameraPage">;
 
 const EditProfileScreen: React.FC = () => {
-  const [username, setUsername] = useState("john_doe");
-  const [email, setEmail] = useState("john@example.com");
+  const [username, setUsername] = useState("Anouar");
+  const [email, setEmail] = useState("arnaud@gmail.com");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigation = useNavigation<NavigationProp>();
@@ -34,7 +35,7 @@ const EditProfileScreen: React.FC = () => {
       return;
     }
 
-    Alert.alert("Succès", "Profil modifié localement !");
+    Alert.alert("Succès", "Profil modifié !");
   };
 
   return (
@@ -47,49 +48,55 @@ const EditProfileScreen: React.FC = () => {
 
         {/* Nom d'utilisateur */}
         <Text style={styles.label}>Nom d'utilisateur</Text>
-        <TextInput
-          style={styles.input}
+        <OptimizedInput
+          onChangeText={setUsername}
           placeholder="Nom d'utilisateur"
           value={username}
-          onChangeText={setUsername}
           autoCapitalize="none"
+          icon="person-outline"
+          testID="username-input"
         />
 
         {/* Email */}
         <Text style={styles.label}>Adresse email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
+        <OptimizedInput
           onChangeText={setEmail}
+          placeholder="Adresse email"
+          value={email}
           keyboardType="email-address"
           autoCapitalize="none"
+          icon="mail-outline"
+          testID="email-input"
         />
-
-        {/* Mot de passe */}
         <Text style={styles.label}>Nouveau mot de passe</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Mot de passe"
-          value={password}
+        <OptimizedInput
           onChangeText={setPassword}
-          secureTextEntry
+          placeholder="Nouveau mot de passe"
+          value={password}
+          secureTextEntry={true}
+          icon="lock-closed-outline"
+          showEye={true}
+          autoComplete="password"
+          testID="password-input"
         />
 
         {/* Confirmation */}
         <Text style={styles.label}>Confirmer le mot de passe</Text>
-        <TextInput
-          style={styles.input}
+        <OptimizedInput
+          onChangeText={setConfirmPassword}
           placeholder="Confirmer le mot de passe"
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
+          secureTextEntry={true}
+          icon="lock-closed-outline"
+          showEye={true}
+          autoComplete="password"
+          testID="confirm-password-input"
         />
 
         {/* Bouton enregistrer */}
-        <Pressable style={styles.saveButton} onPress={handleSave}>
+        <Pressable style={styles.editButton} onPress={handleSave}>
           <Ionicons name="save-outline" size={20} color="#fff" />
-          <Text style={styles.saveButtonText}>Enregistrer</Text>
+          <Text style={styles.editButtonText}>Enregistrer</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -135,10 +142,21 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     gap: 10,
   },
-  saveButtonText: {
+  editButton: {
+    flexDirection: "row",
+    backgroundColor: "#667eea",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 20,
+  },
+  editButtonText: {
     color: "#fff",
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "600",
   },
   backButton: {
     position: "absolute",
