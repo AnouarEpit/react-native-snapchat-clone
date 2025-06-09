@@ -95,7 +95,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 4,
+    gap: 5,
+  },
+  items: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    height: 70,
+    backgroundColor: "#fff",
+    borderTopWidth: 0.5,
+    borderTopColor: "#ccc",
   },
   navLabel: {
     fontSize: 10,

@@ -13,6 +13,7 @@ const ProfileScreen: React.FC = () => {
   const user = {
     username: "arnaud_dev",
     email: "arnaud@example.com",
+    date: "01/01/1990",
   };
 
   return (
@@ -29,6 +30,9 @@ const ProfileScreen: React.FC = () => {
 
         <Text style={styles.label}>Email</Text>
         <Text style={styles.value}>{user.email}</Text>
+
+        <Text style={styles.label}>Date de naissance</Text>
+        <Text style={styles.value}>{user.date}</Text>
       </View>
       <Pressable
         style={styles.editButton}

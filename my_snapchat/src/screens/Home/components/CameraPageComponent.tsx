@@ -180,11 +180,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   captureButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: "white",
-    borderWidth: 4,
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    borderWidth: 5,
     borderColor: "rgba(255,255,255,0.5)",
   },
   settingsButtonWrapper: {
