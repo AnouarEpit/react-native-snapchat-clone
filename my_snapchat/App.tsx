@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import React, { useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
 // Contexts
-import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
 
 // Screens
-import CustomSplashScreen from './src/screens/SplashScreen';
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import LoginScreen from './src/screens/LoginScreen';
-import SignUpScreen from './src/screens/SignUpScreen';
-import HomeScreen from './src/screens/Home';
-import FriendsSelectionScreen from './src/screens/FriendsSelectionScreen';
+import CustomSplashScreen from "./src/screens/SplashScreen";
+import WelcomeScreen from "./src/screens/WelcomeScreen";
+import LoginScreen from "./src/screens/LoginScreen";
+import SignUpScreen from "./src/screens/SignUpScreen";
+import HomeScreen from "./src/screens/Home";
+import FriendsSelectionScreen from "./src/screens/FriendsSelectionScreen";
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -19,6 +19,7 @@ export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   Home: undefined;
+  CameraPage: undefined;
   FriendsSelection: {
     photoUri: string;
   };
@@ -29,14 +30,16 @@ const Stack = createStackNavigator<RootStackParamList>();
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, isInitialized } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'login' | 'signup'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<
+    "welcome" | "login" | "signup"
+  >("welcome");
 
   const handleSplashFinish = () => {
     setShowSplash(false);
   };
 
   const handleForgotPassword = () => {
-    console.log('Mot de passe oublié - fonctionnalité à implémenter');
+    console.log("Mot de passe oublié - fonctionnalité à implémenter");
   };
 
   if (showSplash || !isInitialized) {
@@ -51,21 +54,18 @@ const AppNavigator: React.FC = () => {
 
   if (isAuthenticated) {
     return (
-      <Stack.Navigator 
-        screenOptions={{ 
+      <Stack.Navigator
+        screenOptions={{
           headerShown: false,
           gestureEnabled: true,
         }}
       >
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen}
-        />
-        <Stack.Screen 
-          name="FriendsSelection" 
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen
+          name="FriendsSelection"
           component={FriendsSelectionScreen}
           options={{
-            gestureDirection: 'vertical',
+            gestureDirection: "vertical",
             cardStyleInterpolator: ({ current, layouts }) => {
               return {
                 cardStyle: {
@@ -86,34 +86,31 @@ const AppNavigator: React.FC = () => {
     );
   }
 
-
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Welcome">
         {() => {
           switch (currentScreen) {
-            case 'login':
+            case "login":
               return (
                 <LoginScreen
-                  onBack={() => setCurrentScreen('welcome')}
-                  onLogin={async (email, password) => {
-                  }}
+                  onBack={() => setCurrentScreen("welcome")}
+                  onLogin={async (email, password) => {}}
                   onForgotPassword={handleForgotPassword}
                 />
               );
-            case 'signup':
+            case "signup":
               return (
                 <SignUpScreen
-                  onBack={() => setCurrentScreen('welcome')}
-                  onSignUp={async (email, password, username) => {
-                  }}
+                  onBack={() => setCurrentScreen("welcome")}
+                  onSignUp={async (email, password, username) => {}}
                 />
               );
             default:
               return (
                 <WelcomeScreen
-                  onLogin={() => setCurrentScreen('login')}
-                  onSignUp={() => setCurrentScreen('signup')}
+                  onLogin={() => setCurrentScreen("login")}
+                  onSignUp={() => setCurrentScreen("signup")}
                 />
               );
           }

@@ -1,11 +1,6 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface BottomNavComponentProps {
   currentPage: number;
@@ -21,26 +16,34 @@ interface BottomNavComponentProps {
   };
 }
 
-const BottomNavComponent: React.FC<BottomNavComponentProps> = ({ 
-  currentPage, 
-  onNavigate, 
-  colors 
+const BottomNavComponent: React.FC<BottomNavComponentProps> = ({
+  currentPage,
+  onNavigate,
+  colors,
 }) => {
   const navItems = [
-    { icon: 'chatbubbles', label: 'Messages', index: 0 },
-    { icon: 'camera', label: 'Caméra', index: 1 },
-    { icon: 'library', label: 'Stories', index: 2 },
+    { icon: "chatbubbles", label: "Messages", index: 0 },
+    { icon: "camera", label: "Caméra", index: 1 },
+    { icon: "library", label: "Stories", index: 2 },
   ];
 
   return (
     <View style={styles.bottomNav}>
-      <View style={[
-        styles.navContainer, 
-        { 
-          backgroundColor: colors.surface, 
-          borderTopColor: colors.border 
-        }
-      ]}>
+      <View
+        style={[
+          styles.navContainer,
+          currentPage === 1
+            ? {
+                backgroundColor: "transparent",
+                borderTopWidth: 0,
+              }
+            : {
+                backgroundColor: colors.surface,
+                borderTopColor: colors.border,
+                borderTopWidth: 0.5,
+              },
+        ]}
+      >
         {navItems.map((item) => (
           <Pressable
             key={item.index}
@@ -50,14 +53,21 @@ const BottomNavComponent: React.FC<BottomNavComponentProps> = ({
             <Ionicons
               name={item.icon as any}
               size={currentPage === item.index ? 26 : 22}
-              color={currentPage === item.index ? colors.accent : colors.textSecondary}
+              color={
+                currentPage === item.index
+                  ? colors.accent
+                  : colors.textSecondary
+              }
             />
             <Text
               style={[
                 styles.navLabel,
-                { 
-                  color: currentPage === item.index ? colors.accent : colors.textSecondary 
-                }
+                {
+                  color:
+                    currentPage === item.index
+                      ? colors.accent
+                      : colors.textSecondary,
+                },
               ]}
             >
               {item.label}
@@ -71,26 +81,25 @@ const BottomNavComponent: React.FC<BottomNavComponentProps> = ({
 
 const styles = StyleSheet.create({
   bottomNav: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: 34,
   },
   navContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 70,
     borderTopWidth: 0.5,
   },
   navItem: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 4,
   },
   navLabel: {
     fontSize: 10,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });
 
