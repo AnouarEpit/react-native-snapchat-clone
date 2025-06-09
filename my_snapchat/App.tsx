@@ -12,6 +12,8 @@ import LoginScreen from "./src/screens/LoginScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import HomeScreen from "./src/screens/Home";
 import FriendsSelectionScreen from "./src/screens/FriendsSelectionScreen";
+import EditProfileScreen from "./src/screens/EditProfileScreen";
+import ProfileScreen from "./src/screens/ProfileScreen";
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -20,7 +22,8 @@ export type RootStackParamList = {
   SignUp: undefined;
   Home: undefined;
   CameraPage: undefined;
-  EditProfile: undefined;
+  EditProfileScreen: undefined;
+  ProfileScreen: undefined;
   FriendsSelection: { photoUri: string; cameraType: "back" | "front" };
 };
 
@@ -63,6 +66,53 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen
           name="FriendsSelection"
           component={FriendsSelectionScreen}
+          options={{
+            gestureDirection: "vertical",
+            cardStyleInterpolator: ({ current, layouts }) => {
+              return {
+                cardStyle: {
+                  transform: [
+                    {
+                      translateY: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [layouts.screen.height, 0],
+                      }),
+                    },
+                  ],
+                },
+              };
+            },
+          }}
+        />
+        <Stack.Screen
+          name="EditProfileScreen"
+          component={EditProfileScreen}
+          options={{
+            gestureDirection: "horizontal",
+            cardStyleInterpolator: ({ current, layouts }) => {
+              return {
+                cardStyle: {
+                  transform: [
+                    {
+                      translateX: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [layouts.screen.width, 0],
+                      }),
+                    },
+                  ],
+                },
+              };
+            },
+          }}
+        />
+        <Stack.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{ gestureDirection: "horizontal" }}
+        />
+        <Stack.Screen
+          name="CameraPage"
+          component={HomeScreen}
           options={{
             gestureDirection: "vertical",
             cardStyleInterpolator: ({ current, layouts }) => {

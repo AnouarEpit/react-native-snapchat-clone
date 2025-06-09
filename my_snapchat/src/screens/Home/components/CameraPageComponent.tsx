@@ -17,12 +17,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../../../../App";
+import type { RootStackParamList } from "../../../../App"; // Assure-toi que ce chemin est correct
 
 const { width, height } = Dimensions.get("window");
 
-type NavigationProp = StackNavigationProp<RootStackParamList, "CameraPage">;
-
+// Typage correct avec TOUS les écrans du stack
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 const CameraPageComponent: React.FC = () => {
   const [cameraType, setCameraType] = useState<CameraType>("back");
   const [flash, setFlash] = useState<FlashMode>("off");
@@ -87,12 +87,22 @@ const CameraPageComponent: React.FC = () => {
           flash={flash}
         />
 
+        {/* Bouton paramètres */}
         <View style={styles.settingsButtonWrapper}>
           <Pressable
-            onPress={() => navigation.navigate("EditProfile")}
+            onPress={() => navigation.navigate("EditProfileScreen")}
             style={styles.roundButton}
           >
             <Ionicons name="settings-outline" size={24} color="white" />
+          </Pressable>
+        </View>
+
+        <View style={styles.profileButton}>
+          <Pressable
+            onPress={() => navigation.navigate("ProfileScreen")}
+            style={styles.roundButton}
+          >
+            <Ionicons name="person-outline" size={24} color="white" />
           </Pressable>
         </View>
 
@@ -120,7 +130,7 @@ const CameraPageComponent: React.FC = () => {
           </Pressable>
         </View>
 
-        {/* Capture */}
+        {/* Bouton capture */}
         <View style={styles.captureButtonWrapper}>
           <Pressable onPress={takePicture} style={styles.captureButton} />
         </View>
@@ -161,6 +171,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 80,
     alignSelf: "center",
+    zIndex: 10,
+  },
+  profileButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
     zIndex: 10,
   },
   captureButton: {
