@@ -1,46 +1,39 @@
-// Configuration centralisée pour MY_SNAPCHAT
 
 export const Config = {
-  // API Configuration
+
   API: {
     BASE_URL: 'https://snapchat.epihub.eu',
     TIMEOUT: 10000,
   },
 
-  // Endpoints
   ENDPOINTS: {
-    // User endpoints
+
     USER_SIGNUP: '/user',
     USER_LOGIN: '/user',
     USER_PROFILE: '/user',
     USER_BY_ID: '/user/{id}',
     
-    // Friends endpoints
     FRIENDS: '/user/friends',
     
-    // Snaps endpoints
     SNAPS: '/snap',
     SNAP_BY_ID: '/snap/{id}',
     SNAP_SEEN: '/snap/seen/{id}',
   },
 
-  // Storage Keys
   STORAGE_KEYS: {
     USER_TOKEN: 'userToken',
     USER_DATA: 'userData',
     API_KEY: 'apiKey',
   },
 
-  // App Configuration
   APP: {
-    NAME: 'MY_SNAPCHAT',
+    NAME: 'MY SNAPCHAT',
     VERSION: '1.0.0',
     DEFAULT_SNAP_DURATION: 3,
     MAX_SNAP_DURATION: 10,
     SUPPORTED_DURATIONS: [1, 3, 5, 7, 10],
   },
 
-  // Colors
   COLORS: {
     PRIMARY: '#667eea',
     SECONDARY: '#764ba2',
@@ -55,7 +48,6 @@ export const Config = {
     TRANSPARENT: 'transparent',
   },
 
-  // UI Constants
   UI: {
     BORDER_RADIUS: {
       SMALL: 8,
@@ -79,7 +71,6 @@ export const Config = {
   },
 };
 
-// Utility function to replace URL parameters
 export const getApiUrl = (endpoint: string, params: Record<string, string> = {}): string => {
   let url = endpoint;
   Object.entries(params).forEach(([key, value]) => {
@@ -88,7 +79,6 @@ export const getApiUrl = (endpoint: string, params: Record<string, string> = {})
   return url;
 };
 
-// Type definitions for better TypeScript support
 export type ConfigType = typeof Config;
 export type EndpointKey = keyof typeof Config.ENDPOINTS;
 export type StorageKey = keyof typeof Config.STORAGE_KEYS;

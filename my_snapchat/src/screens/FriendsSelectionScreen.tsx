@@ -59,40 +59,56 @@ const FriendsSelectionScreen: React.FC = () => {
   const loadFriends = async () => {
     setIsLoading(true);
     try {
-      console.log('📡 Chargement des amis...');
+      console.log(' Chargement des amis...');
+
       const response = await ApiService.getFriends();
-      console.log('📡 Réponse API getFriends:', response);
+
+      console.log(' Réponse API getFriends:', response);
       
-      if (response.success && response.data) {
-        // ✅ VERIFICACIÓN CRÍTICA CON TIPOS SEGUROS
+      if (response.success && response.data) 
+      {
+
         let friendsArray: Friend[] = [];
         
-        if (Array.isArray(response.data)) {
+        if (Array.isArray(response.data)) 
+        {
           friendsArray = response.data as Friend[];
-        } else if (response.data && typeof response.data === 'object') {
-          // ✅ TYPE SAFE: Verificación de propiedades anidadas
+        } 
+        
+        else if (response.data && typeof response.data === 'object') 
+        {
           const responseObj = response.data as any;
           
-          if (Array.isArray(responseObj.friends)) {
+          if (Array.isArray(responseObj.friends)) 
+          {
             friendsArray = responseObj.friends as Friend[];
-          } else if (Array.isArray(responseObj.data)) {
+          } 
+          
+          else if (Array.isArray(responseObj.data)) {
             friendsArray = responseObj.data as Friend[];
-          } else {
+          } 
+          
+          else 
+          {
             console.warn('⚠️ Structure de response.data inattendue:', response.data);
             friendsArray = [];
           }
         }
         
-        console.log('✅ Amis chargés:', friendsArray.length, 'amis trouvés');
+        console.log('Amis chargés:', friendsArray.length, 'amis trouvés');
         setFriends(friendsArray);
-      } else {
+      }
+      else {
         console.log('⚠️ Aucun ami trouvé ou erreur API');
         setFriends([]);
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('❌ Erreur chargement amis:', error);
       setFriends([]);
-    } finally {
+    } 
+    
+    finally {
       setIsLoading(false);
     }
   };
@@ -105,7 +121,7 @@ const FriendsSelectionScreen: React.FC = () => {
 
     setIsSending(true);
     try {
-      console.log('📤 Envoi du snap...', {
+      console.log(' Envoi du snap...', {
         selectedFriend,
         duration,
         photoUri: photoUri.substring(0, 50) + '...',
@@ -122,25 +138,28 @@ const FriendsSelectionScreen: React.FC = () => {
 
       const response = await ApiService.sendSnap(formData);
 
-      if (response.success) {
+      if (response.success) 
+        {
         Alert.alert('Succès', 'Snap envoyé avec succès !', [
           {
             text: 'OK',
             onPress: () => navigation.navigate('Home'),
           },
         ]);
-      } else {
+      } 
+      else {
         Alert.alert('Erreur', response.message || 'Erreur lors de l\'envoi');
       }
-    } catch (error) {
-      console.error('❌ Erreur envoi snap:', error);
+    } 
+    catch (error) 
+    {
+      console.error(' Erreur envoi snap:', error);
       Alert.alert('Erreur', 'Erreur lors de l\'envoi du snap');
     } finally {
       setIsSending(false);
     }
   };
 
-  // ✅ FILTRAGE TYPE SAFE: Garantizar que friends es un array
   const filteredFriends: Friend[] = Array.isArray(friends) 
     ? friends.filter((friend: Friend) => 
         friend.username && friend.username.toLowerCase().includes(searchQuery.toLowerCase())
@@ -207,15 +226,16 @@ const FriendsSelectionScreen: React.FC = () => {
             <View style={styles.placeholder} />
           </View>
 
-          {/* Photo Preview */}
           <View style={styles.photoContainer}>
             <Image source={{ uri: photoUri }} style={styles.photoPreview} />
           </View>
 
-          {/* Search */}
           <View style={styles.searchContainer}>
+
             <BlurView intensity={20} style={styles.searchBlur}>
+            
               <Ionicons name="search" size={16} color="rgba(255,255,255,0.7)" />
+            
               <TextInput
                 style={styles.searchInput}
                 placeholder="Rechercher un ami"
@@ -224,9 +244,9 @@ const FriendsSelectionScreen: React.FC = () => {
                 onChangeText={setSearchQuery}
               />
             </BlurView>
+
           </View>
 
-          {/* Friends List */}
           <View style={styles.friendsSection}>
             <Text style={styles.sectionTitle}>
               {isLoading ? 'Chargement...' : `Mes amis (${filteredFriends.length})`}
@@ -305,7 +325,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -313,6 +332,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
+
   backButton: {
     width: 40,
     height: 40,
@@ -321,6 +341,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   headerTitle: {
     color: '#FFFFFF',
     fontSize: 18,
@@ -330,7 +351,6 @@ const styles = StyleSheet.create({
     width: 40,
   },
 
-  // Photo Preview
   photoContainer: {
     alignItems: 'center',
     marginBottom: 20,
@@ -343,7 +363,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
   },
 
-  // Search
   searchContainer: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -363,7 +382,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // Sections
   sectionTitle: {
     color: '#FFFFFF',
     fontSize: 16,
@@ -372,7 +390,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  // Friends
   friendsSection: {
     flex: 1,
     marginBottom: 20,
@@ -443,7 +460,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Duration
   durationSection: {
     marginBottom: 25,
   },
@@ -474,7 +490,6 @@ const styles = StyleSheet.create({
     color: '#667eea',
   },
 
-  // Send Button
   sendContainer: {
     paddingHorizontal: 20,
     paddingBottom: 20,

@@ -7,14 +7,17 @@ import {
   Pressable,
   TextInputProps,
 } from 'react-native';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Animatable from 'react-native-animatable';
 import { Ionicons } from '@expo/vector-icons';
 
-interface OptimizedInputProps extends TextInputProps {
+interface OptimizedInputProps extends TextInputProps 
+{
   placeholder: string;
   value: string;
+
   onChangeText: (text: string) => void;
   icon?: keyof typeof Ionicons.glyphMap;
   showEye?: boolean;
@@ -45,7 +48,8 @@ const OptimizedInput: React.FC<OptimizedInputProps> = ({
       };
     }
     
-    if (isFocused) {
+    if (isFocused) 
+    {
       return {
         background: 'rgba(255,255,255,0.1)',
         border: 'rgba(255,255,255,0.4)',

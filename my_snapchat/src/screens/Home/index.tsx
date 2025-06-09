@@ -1,97 +1,118 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Dimensions,
   StatusBar,
-  Pressable,
-  SafeAreaView,
-} from 'react-native';
+  ScrollView,
+} 
+
+from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '../../../App';
 
-const { width, height } = Dimensions.get('window');
+import ChatPageComponent from './components/ChatPageComponent';
+import CameraPageComponent from './components/CameraPageComponent';
+import StoriesPageComponent from './components/StoriesPageComponent';
+import BottomNavComponent from './components/BottomNavComponent';
+
+const { width } = Dimensions.get('window');
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+const colors = {
+  background: '#000000',
+  surface: '#1c1c1e',
+  text: '#FFFFFF',
+  textSecondary: '#8E8E93',
+  accent: '#007AFF',
+  border: '#38383a',
+  success: '#30D158',
+  error: '#FF6B6B',
+};
 
 const HomeScreen: React.FC = () => {
   const { user, logout } = useAuth();
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const [currentView, setCurrentView] = useState<'menu' | 'camera' | 'chat'>('menu');
+  const [currentPage, setCurrentPage] = useState(1); 
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  console.log('HomeScreen renderizado - user:', user?.username);
+  console.log('🏠 HomeScreen Modular - currentPage:', currentPage, 'user:', user?.username);
 
-  const handlePhotoTaken = () => {
-    const mockPhotoUri = './assets/snapchat.png';
-    console.log('Navigating to FriendsSelection with mock photo');
-    navigation.navigate('FriendsSelection', { photoUri: mockPhotoUri });
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ x: width, animated: false });
+      }, 100);
+    }
+  }, []);
+
+  const navigateToPage = (pageIndex: number) => {
+    console.log('📱 Navegando a página:', pageIndex);
+    setCurrentPage(pageIndex);
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ 
+        x: pageIndex * width, 
+        animated: true 
+      });
+    }
   };
 
-  const renderMenu = () => (
-    <View style={styles.menuContainer}>
-      <Text style={styles.title}>MY_SNAPCHAT</Text>
-      <Text style={styles.subtitle}>Bienvenue {user?.username}!</Text>
-      
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.button} onPress={() => setCurrentView('chat')}>
-          <Text style={styles.buttonText}>💬 Chat</Text>
-        </Pressable>
-        
-        <Pressable style={styles.button} onPress={() => setCurrentView('camera')}>
-          <Text style={styles.buttonText}>📷 Caméra</Text>
-        </Pressable>
-        
-        <Pressable style={styles.button} onPress={handlePhotoTaken}>
-          <Text style={styles.buttonText}>🧪 Test Friends Selection</Text>
-        </Pressable>
-        
-        <Pressable style={[styles.button, styles.logoutButton]} onPress={logout}>
-          <Text style={[styles.buttonText, styles.logoutText]}>🚪 Déconnexion</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  const renderChat = () => (
-    <View style={styles.pageContainer}>
-      <Text style={styles.pageTitle}>💬 Chat</Text>
-      <Text style={styles.pageContent}>Interface Chat - En développement</Text>
-      <Pressable style={styles.backButton} onPress={() => setCurrentView('menu')}>
-        <Text style={styles.backButtonText}>← Retour</Text>
-      </Pressable>
-    </View>
-  );
-
-  const renderCamera = () => (
-    <View style={styles.pageContainer}>
-      <Text style={styles.pageTitle}>📷 Caméra</Text>
-      <Text style={styles.pageContent}>Interface Caméra - En développement</Text>
-      <Pressable style={styles.backButton} onPress={() => setCurrentView('menu')}>
-        <Text style={styles.backButtonText}>← Retour</Text>
-      </Pressable>
-    </View>
-  );
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'chat':
-        return renderChat();
-      case 'camera':
-        return renderCamera();
-      default:
-        return renderMenu();
+  const onScroll = (event: any) => {
+    const scrollX = event.nativeEvent.contentOffset.x;
+    const page = Math.round(scrollX / width);
+    if (page !== currentPage) {
+      setCurrentPage(page);
     }
+  };
+
+  const handlePhotoResult = (photoUri: string) => {
+    console.log('📸 Photo sélectionnée dans HomeScreen:', photoUri);
+    navigation.navigate('FriendsSelection', { photoUri });
+  };
+
+  const handleTakePhotoFromStories = () => {
+    // Navegar a la página de cámara al tocar "Ajouter à ma story"
+    navigateToPage(1);
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <SafeAreaView style={styles.safeArea}>
-        {renderCurrentView()}
-      </SafeAreaView>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        style={styles.scrollContainer}
+      >
+        <ChatPageComponent 
+          user={user} 
+          onLogout={logout}
+          colors={colors}
+        />
+        
+        <CameraPageComponent 
+          onPhotoResult={handlePhotoResult}
+          colors={colors}
+        />
+        
+        <StoriesPageComponent 
+          onTakePhoto={handleTakePhotoFromStories}
+          colors={colors}
+        />
+      </ScrollView>
+
+      <BottomNavComponent 
+        currentPage={currentPage} 
+        onNavigate={navigateToPage}
+        colors={colors}
+      />
     </View>
   );
 };
@@ -99,89 +120,10 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0e27',
+    backgroundColor: colors.background,
   },
-  safeArea: {
+  scrollContainer: {
     flex: 1,
-  },
-  
-  menuContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '700',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 18,
-    marginBottom: 50,
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    width: '100%',
-    gap: 20,
-  },
-  button: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  logoutButton: {
-    backgroundColor: 'rgba(255,100,100,0.2)',
-    borderColor: 'rgba(255,100,100,0.4)',
-    marginTop: 20,
-  },
-  logoutText: {
-    color: '#FF6B6B',
-  },
-  
-  // Pages
-  pageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  pageTitle: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 20,
-  },
-  pageContent: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  backButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  backButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 

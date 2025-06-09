@@ -30,7 +30,6 @@ interface Snap {
 
 class ApiServiceClass {
   private api: AxiosInstance;
-  // ✅ Tu API key directamente configurada
   private apiKey: string = 'REDACTED_API_KEY';
 
   constructor() {
@@ -69,7 +68,6 @@ class ApiServiceClass {
       }
     );
 
-    // Intercepteur pour gérer les réponses
     this.api.interceptors.response.use(
       (response: AxiosResponse) => {
         console.log(`✅ API Response: ${response.status} ${response.config.url}`);
@@ -118,6 +116,8 @@ class ApiServiceClass {
         email,
         password,
         username,
+        date,
+        confirmation
       });
 
       return {
@@ -146,6 +146,7 @@ class ApiServiceClass {
       const response = await this.api.put(Config.ENDPOINTS.USER_LOGIN, {
         email,
         password,
+
       });
 
       console.log('🔍 Structure de la réponse login:', response.data);

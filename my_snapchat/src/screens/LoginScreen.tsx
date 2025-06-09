@@ -10,6 +10,7 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Animatable from 'react-native-animatable';
@@ -31,26 +32,38 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBack, onForgotPassword }) =
   const { login, isLoading, error } = useAuth();
 
   const handleLogin = async () => {
-    if (!email.trim()) {
+    
+    if (!email.trim()) 
+    {
       Alert.alert('Erreur', 'Veuillez saisir votre email');
       return;
     }
-    if (!password.trim()) {
+    
+    if (!password.trim()) 
+    {
       Alert.alert('Erreur', 'Veuillez saisir votre mot de passe');
       return;
     }
-    if (!email.includes('@')) {
+
+    if (!email.includes('@')) 
+    {
       Alert.alert('Erreur', 'Email invalide');
+      console.log('Email invalide');
       return;
     }
 
-    try {
-      console.log('🔑 Tentative de connexion:', email);
+    try
+    {
+      console.log('Tentative de connexion:', email);
       await login({ email: email.trim(), password });
-      console.log('✅ Connexion réussie!');
-    } catch (error: any) {
-      console.error('❌ Erreur de connexion:', error);
+    
+      console.log('Connexion réussie!');
+    }  
+
+    catch (error: any) {
+      console.error(' Erreur de connexion:', error);
     }
+
   };
 
   return (
@@ -70,6 +83,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBack, onForgotPassword }) =
           delay={500}
           style={[styles.hexagon, { top: 100, right: 40 }]}
         />
+
         <Animatable.View
           animation="fadeIn"
           delay={800}
@@ -193,6 +207,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
   background: {
     position: 'absolute',
     left: 0,
@@ -200,6 +215,7 @@ const styles = StyleSheet.create({
     top: 0,
     height: height,
   },
+
   decorContainer: {
     position: 'absolute',
     top: 0,
@@ -207,6 +223,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+
   hexagon: {
     position: 'absolute',
     width: 50,
@@ -214,34 +231,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.03)',
     transform: [{ rotate: '45deg' }],
   },
+
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
+
   backButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
     overflow: 'hidden',
   },
+
   backButtonBlur: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
+
   keyboardView: {
     flex: 1,
   },
+
   content: {
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'center',
   },
+
   titleSection: {
     marginBottom: 40,
   },
+
   title: {
     fontSize: 32,
     fontWeight: '700',
@@ -249,14 +273,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     letterSpacing: -0.5,
   },
+
   subtitle: {
     fontSize: 16,
     color: 'rgba(255,255,255,0.7)',
     fontWeight: '400',
   },
+
   form: {
     gap: 8,
   },
+
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -267,6 +294,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,107,107,0.2)',
   },
+  
   errorText: {
     color: '#FF6B6B',
     fontSize: 14,
@@ -274,6 +302,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     flex: 1,
   },
+  
   forgotPassword: {
     alignSelf: 'flex-end',
     paddingVertical: 15,

@@ -19,7 +19,7 @@ const CustomSplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onFinish();
-    }, 3000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [onFinish]);

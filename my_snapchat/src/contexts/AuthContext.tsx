@@ -130,34 +130,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     
     try {
-      console.log('📡 Appel API signUp...');
+      console.log('📡Appel API signUp...');
+      
       const response = await ApiService.signUp(
         credentials.email, 
         credentials.password, 
         credentials.username
       );
-      console.log('📡 Réponse API signUp:', response);
+      console.log(' Réponse API signUp:', response);
       
       if (response.success) {
-        console.log('✅ Inscription réussie pour:', credentials.username);
+        console.log(' Inscription réussie pour:', credentials.username);
         Alert.alert(
           'Succès', 
           'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
         );
       } else {
         const errorMsg = response.message || 'Erreur lors de la création du compte';
-        console.log('❌ Échec de l\'inscription:', errorMsg);
+        console.log(' Échec de l\'inscription:', errorMsg);
         throw new Error(errorMsg);
       }
     } catch (error: any) {
       const errorMessage = error.message || 'Erreur lors de la création du compte';
-      console.error('❌ Erreur dans signUp():', errorMessage);
+      console.error(' Erreur dans signUp():', errorMessage);
       setError(errorMessage);
       Alert.alert('Erreur', errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
-      console.log('📝 Fin de la tentative d\'inscription');
+      console.log('Fin de la tentative d\'inscription');
     }
   };
 
@@ -166,9 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🚪 Déconnexion...');
       await AsyncStorage.multiRemove(['userToken', 'userData']);
       setUser(null);
-      console.log('✅ Déconnexion réussie');
+      console.log(' Déconnexion réussie');
     } catch (error) {
-      console.error('❌ Erreur déconnexion:', error);
+      console.error(' Erreur déconnexion:', error);
     }
   };
 
