@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     flexDirection: "row",
-    backgroundColor: "#38bdf8",
+    backgroundColor: "#667eea",
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 10,
