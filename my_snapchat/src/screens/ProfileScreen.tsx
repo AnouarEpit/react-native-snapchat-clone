@@ -1,39 +1,75 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../../App";
+import { useAuth } from "../contexts/AuthContext";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "ProfileScreen">;
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { user } = useAuth();
 
-  const user = {
-    username: "arnaud_dev",
-    email: "arnaud@example.com",
-    date: "01/01/1990",
+  const formatDate = (input: string): string => {
+    if (!input) return "Non renseignée";
+
+    try {
+      let dateObj;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+        dateObj = new Date(input);
+      } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(input)) {
+        const [day, month, year] = input.split("/");
+        dateObj = new Date(`${year}-${month}-${day}`);
+      }
+
+      if (!dateObj || isNaN(dateObj.getTime())) return input;
+
+      return new Intl.DateTimeFormat("fr-FR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(dateObj);
+    } catch {
+      return input;
+    }
   };
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.value}>Utilisateur non connecté</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Mon Profil</Text>
-      </View>
       <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#fff" />
       </Pressable>
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Nom d'utilisateur</Text>
-        <Text style={styles.value}>{user.username}</Text>
 
-        <Text style={styles.label}>Email</Text>
-        <Text style={styles.value}>{user.email}</Text>
-
-        <Text style={styles.label}>Date de naissance</Text>
-        <Text style={styles.value}>{user.date}</Text>
+      <View style={styles.profileHeader}>
+        <Image
+          source={{
+            uri:
+              user.profilePicture ||
+              "https://ui-avatars.com/api/?name=" +
+                encodeURIComponent(user.username),
+          }}
+          style={styles.avatar}
+        />
+        <Text style={styles.username}>{user.username}</Text>
+        <Text style={styles.email}>{user.email}</Text>
       </View>
+
+      <View style={styles.infoSection}>
+        <Text style={styles.label}>Date de naissance</Text>
+        <Text style={styles.value}>{formatDate(user.date ?? "")}</Text>
+      </View>
+
       <Pressable
         style={styles.editButton}
         onPress={() => navigation.navigate("EditProfileScreen")}
@@ -48,47 +84,61 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: "black",
     padding: 20,
-    paddingTop: 80,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 22,
-    color: "#fff",
-    fontWeight: "bold",
-    marginBottom: 30,
-    textAlign: "center",
+    paddingTop: 60,
   },
   backButton: {
     position: "absolute",
-    marginTop: 50,
-    marginLeft: 20,
-    padding: 8,
+    top: 40,
+    left: 20,
+    padding: 10,
     backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 20,
+    zIndex: 10,
   },
-  infoContainer: {
+  profileHeader: {
+    alignItems: "center",
+    marginTop: 60,
+    marginBottom: 30,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: "#38bdf8",
+  },
+  username: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 16,
+    color: "#cbd5e1",
+  },
+  infoSection: {
+    backgroundColor: "rgba(255,255,255,0.05)",
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 40,
   },
   label: {
-    color: "#aaa",
     fontSize: 14,
-    marginBottom: 4,
+    color: "#94a3b8",
+    marginBottom: 6,
   },
   value: {
-    color: "#fff",
     fontSize: 18,
-    marginBottom: 20,
+    color: "#fff",
+    fontWeight: "500",
   },
   editButton: {
     flexDirection: "row",
-    backgroundColor: "#667eea",
+    backgroundColor: "#38bdf8",
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 10,

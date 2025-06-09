@@ -16,6 +16,7 @@ interface User {
   email: string;
   username: string;
   profilePicture?: string;
+  date?: string;
 }
 
 interface Snap {
@@ -192,6 +193,7 @@ class ApiServiceClass {
           email: response.data.token.data.email || email,
           username: response.data.token.data.username,
           profilePicture: response.data.token.data.profilePicture || "",
+          date: response.data.token.data.date,
         };
       } else {
         // Fallback au cas où la structure change

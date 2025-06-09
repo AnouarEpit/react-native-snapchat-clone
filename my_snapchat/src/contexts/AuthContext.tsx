@@ -10,6 +10,7 @@ interface AuthUser {
   username: string;
   token: string;
   profilePicture?: string; // ✅ Agregado
+  date?: string;
 }
 
 interface AuthContextType {
