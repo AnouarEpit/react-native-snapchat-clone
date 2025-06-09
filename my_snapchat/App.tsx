@@ -1,20 +1,136 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-export default function App() {
+// Contexts
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+
+// Screens
+import CustomSplashScreen from './src/screens/SplashScreen';
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+import HomeScreen from './src/screens/Home';
+import FriendsSelectionScreen from './src/screens/FriendsSelectionScreen';
+
+export type RootStackParamList = {
+  Splash: undefined;
+  Welcome: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  Home: undefined;
+  FriendsSelection: {
+    photoUri: string;
+  };
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
+
+const AppNavigator: React.FC = () => {
+  const { isAuthenticated, isInitialized } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'login' | 'signup'>('welcome');
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
+
+  const handleForgotPassword = () => {
+    console.log('Mot de passe oublié - fonctionnalité à implémenter');
+  };
+
+  if (showSplash || !isInitialized) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Splash">
+          {() => <CustomSplashScreen onFinish={handleSplashFinish} />}
+        </Stack.Screen>
+      </Stack.Navigator>
+    );
+  }
+
+  if (isAuthenticated) {
+    return (
+      <Stack.Navigator 
+        screenOptions={{ 
+          headerShown: false,
+          gestureEnabled: true,
+        }}
+      >
+        <Stack.Screen 
+          name="Home" 
+          component={HomeScreen}
+        />
+        <Stack.Screen 
+          name="FriendsSelection" 
+          component={FriendsSelectionScreen}
+          options={{
+            gestureDirection: 'vertical',
+            cardStyleInterpolator: ({ current, layouts }) => {
+              return {
+                cardStyle: {
+                  transform: [
+                    {
+                      translateY: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [layouts.screen.height, 0],
+                      }),
+                    },
+                  ],
+                },
+              };
+            },
+          }}
+        />
+      </Stack.Navigator>
+    );
+  }
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Welcome">
+        {() => {
+          switch (currentScreen) {
+            case 'login':
+              return (
+                <LoginScreen
+                  onBack={() => setCurrentScreen('welcome')}
+                  onLogin={async (email, password) => {
+                  }}
+                  onForgotPassword={handleForgotPassword}
+                />
+              );
+            case 'signup':
+              return (
+                <SignUpScreen
+                  onBack={() => setCurrentScreen('welcome')}
+                  onSignUp={async (email, password, username) => {
+                  }}
+                />
+              );
+            default:
+              return (
+                <WelcomeScreen
+                  onLogin={() => setCurrentScreen('login')}
+                  onSignUp={() => setCurrentScreen('signup')}
+                />
+              );
+          }
+        }}
+      </Stack.Screen>
+    </Stack.Navigator>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+};
+
+export default App;
