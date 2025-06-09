@@ -41,7 +41,7 @@ interface Friend {
 const FriendsSelectionScreen: React.FC = () => {
   const navigation = useNavigation<FriendsSelectionScreenNavigationProp>();
   const route = useRoute<FriendsSelectionScreenRouteProp>();
-  const { photoUri } = route.params;
+  const { photoUri, cameraType } = route.params;
 
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -221,7 +221,13 @@ const FriendsSelectionScreen: React.FC = () => {
           </View>
 
           <View style={styles.photoContainer}>
-            <Image source={{ uri: photoUri }} style={styles.photoPreview} />
+            <Image
+              source={{ uri: photoUri }}
+              style={[
+                styles.photoPreview,
+                cameraType === "front" && { transform: [{ scaleX: -1 }] },
+              ]}
+            />
           </View>
 
           <View style={styles.searchContainer}>
@@ -362,8 +368,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   photoPreview: {
-    width: 120,
-    height: 160,
+    width: 250,
+    height: 350,
     borderRadius: 15,
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.3)",

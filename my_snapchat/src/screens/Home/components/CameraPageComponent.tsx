@@ -3,15 +3,21 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  TouchableWithoutFeedback,
   Alert,
   Pressable,
+  TouchableWithoutFeedback,
 } from "react-native";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import {
+  CameraView,
+  CameraType,
+  useCameraPermissions,
+  FlashMode,
+} from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../../../../App"; // ajuste selon ton chemin réel
+import type { RootStackParamList } from "../../../../App";
 
 const { width, height } = Dimensions.get("window");
 
@@ -19,24 +25,15 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "CameraPage">;
 
 const CameraPageComponent: React.FC = () => {
   const [cameraType, setCameraType] = useState<CameraType>("back");
+  const [flash, setFlash] = useState<FlashMode>("off");
   const cameraRef = useRef<CameraView>(null);
-  const lastTap = useRef<number>(0);
   const [permission, requestPermission] = useCameraPermissions();
+  const lastTap = useRef<number>(0);
   const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
-    if (!permission) {
-      requestPermission();
-    }
+    if (!permission) requestPermission();
   }, [permission]);
-
-  const takePicture = async () => {
-    if (cameraRef.current && "takePictureAsync" in cameraRef.current) {
-      // @ts-ignore until expo-camera provides proper CameraView ref typing
-      const photo = await cameraRef.current.takePictureAsync();
-      navigation.navigate("FriendsSelection", { photoUri: photo.uri });
-    }
-  };
 
   const handleDoubleTap = () => {
     const now = Date.now();
@@ -46,25 +43,84 @@ const CameraPageComponent: React.FC = () => {
     lastTap.current = now;
   };
 
+  const takePicture = async () => {
+    if (cameraRef.current && "takePictureAsync" in cameraRef.current) {
+      const photo = await cameraRef.current.takePictureAsync();
+      navigation.navigate("FriendsSelection", {
+        photoUri: photo.uri,
+        cameraType,
+      });
+    }
+  };
+
+  const pickFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      navigation.navigate("FriendsSelection", {
+        photoUri: result.assets[0].uri,
+        cameraType,
+      });
+    }
+  };
+
+  const toggleFlash = () => {
+    setFlash((prev) => (prev === "off" ? "on" : "off"));
+  };
+
   if (!permission) return <View style={styles.container} />;
   if (!permission.granted) {
-    Alert.alert("Accès refusé", "Autorisez l'accès à la caméra.");
+    Alert.alert("Permission refusée", "Veuillez autoriser la caméra.");
     return <View style={styles.container} />;
   }
 
   return (
     <TouchableWithoutFeedback onPress={handleDoubleTap}>
-      <View style={styles.wrapper}>
-        <CameraView ref={cameraRef} style={styles.camera} facing={cameraType} />
+      <View style={styles.wrapper} pointerEvents="box-none">
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing={cameraType}
+          flash={flash}
+        />
 
-        {/* Switch caméra (en bas à droite) */}
-        <View style={styles.switchWrapper}>
-          <Pressable onPress={handleDoubleTap} style={styles.switchButton}>
+        <View style={styles.settingsButtonWrapper}>
+          <Pressable
+            onPress={() => navigation.navigate("EditProfile")}
+            style={styles.roundButton}
+          >
+            <Ionicons name="settings-outline" size={24} color="white" />
+          </Pressable>
+        </View>
+
+        {/* Boutons à droite */}
+        <View style={styles.rightControls} pointerEvents="box-none">
+          <Pressable onPress={pickFromGallery} style={styles.roundButton}>
+            <Ionicons name="image" size={24} color="white" />
+          </Pressable>
+
+          <Pressable onPress={toggleFlash} style={styles.roundButton}>
+            <Ionicons
+              name={flash === "off" ? "flash-off" : "flash"}
+              size={24}
+              color="white"
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              setCameraType((prev) => (prev === "back" ? "front" : "back"))
+            }
+            style={styles.roundButton}
+          >
             <Ionicons name="camera-reverse" size={24} color="white" />
           </Pressable>
         </View>
 
-        {/* Bouton capture (au centre en bas) */}
+        {/* Capture */}
         <View style={styles.captureButtonWrapper}>
           <Pressable onPress={takePicture} style={styles.captureButton} />
         </View>
@@ -83,30 +139,29 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
   },
   camera: {
-    flex: 1,
     width,
     height,
   },
-  switchWrapper: {
+  rightControls: {
     position: "absolute",
-    bottom: 100,
     right: 20,
-    zIndex: 20,
+    top: 350,
+    gap: 20,
+    alignItems: "center",
+    zIndex: 10,
   },
-  switchButton: {
+  roundButton: {
     backgroundColor: "rgba(0,0,0,0.6)",
     padding: 12,
     borderRadius: 50,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
   },
   captureButtonWrapper: {
     position: "absolute",
     bottom: 80,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 20,
+    alignSelf: "center",
+    zIndex: 10,
   },
   captureButton: {
     width: 70,
@@ -115,6 +170,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderWidth: 4,
     borderColor: "rgba(255,255,255,0.5)",
+  },
+  settingsButtonWrapper: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
   },
 });
 

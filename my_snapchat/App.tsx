@@ -20,9 +20,8 @@ export type RootStackParamList = {
   SignUp: undefined;
   Home: undefined;
   CameraPage: undefined;
-  FriendsSelection: {
-    photoUri: string;
-  };
+  EditProfile: undefined;
+  FriendsSelection: { photoUri: string; cameraType: "back" | "front" };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
