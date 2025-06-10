@@ -17,13 +17,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../../../../App"; // Assure-toi que ce chemin est correct
+import type { RootStackParamList } from "../../../../App";
 
 const { width, height } = Dimensions.get("window");
 
-// Typage correct avec TOUS les écrans du stack
+interface CameraPageComponentProps {
+  colors: any;
+}
+
 type NavigationProp = StackNavigationProp<RootStackParamList>;
-const CameraPageComponent: React.FC = () => {
+
+const CameraPageComponent: React.FC<CameraPageComponentProps> = ({ colors }) => {
   const [cameraType, setCameraType] = useState<CameraType>("back");
   const [flash, setFlash] = useState<FlashMode>("off");
   const cameraRef = useRef<CameraView>(null);
@@ -143,6 +147,8 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     position: "relative",
+    width: width,
+    height: height,
   },
   container: {
     flex: 1,

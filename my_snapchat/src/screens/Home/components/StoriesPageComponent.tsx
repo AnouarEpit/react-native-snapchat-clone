@@ -7,22 +7,45 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  Image,
 } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
-interface StoriesPageComponentProps {
+interface StoriesPageComponentProps 
+{
   onTakePhoto: () => void;
   colors: any;
 }
 
 const StoriesPageComponent: React.FC<StoriesPageComponentProps> = ({ onTakePhoto, colors }) => {
   const mockStories = [
-    { name: 'Emma Laurent', time: '2h', viewed: false },
-    { name: 'Lucas Martin', time: '4h', viewed: true },
-    { name: 'Sophie Durand', time: '1j', viewed: false },
-    { name: 'Antoine Moreau', time: '2j', viewed: true },
+    { 
+      name: 'Ludivine', 
+      time: '2h', 
+      viewed: false,
+      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b789?w=150&h=150&fit=crop&crop=face'
+    },
+    { 
+      name: 'Anouar Khali', 
+      time: '4h', 
+      viewed: true,
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+    },
+    { 
+      name: 'Test Anouar', 
+      time: '1j', 
+      viewed: false,
+      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
+    },
+    { 
+      name: 'Arnaud Pantufla', 
+      time: '2j', 
+      viewed: true,
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+    },
   ];
 
   return (
@@ -68,9 +91,16 @@ const StoriesPageComponent: React.FC<StoriesPageComponentProps> = ({ onTakePhoto
                   { backgroundColor: colors.surface },
                   !story.viewed && [styles.storyAvatarNew, { borderColor: colors.success }]
                 ]}>
-                  <Text style={[styles.storyAvatarText, { color: colors.text }]}>
-                    {story.name.charAt(0)}
-                  </Text>
+                  {story.image ? (
+                    <Image 
+                      source={{ uri: story.image }} 
+                      style={styles.storyAvatarImage}
+                    />
+                  ) : (
+                    <Text style={[styles.storyAvatarText, { color: colors.text }]}>
+                      {story.name.charAt(0)}
+                    </Text>
+                  )}
                 </View>
                 <View style={styles.storyInfo}>
                   <Text style={[
@@ -159,6 +189,11 @@ const styles = StyleSheet.create({
   storyAvatarText: {
     fontSize: 16,
     fontWeight: '700',
+  },
+  storyAvatarImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   storyInfo: {
     flex: 1,

@@ -9,7 +9,7 @@ interface AuthUser {
   email: string;
   username: string;
   token: string;
-  profilePicture?: string; // ✅ Agregado
+  profilePicture?: string;
   date?: string;
 }
 
@@ -45,41 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    checkAuthStatus();
+    // ✅ DESACTIVAR AUTO-LOGIN - siempre empezar en Welcome
+    console.log("🔍 Inicio sin auto-login, directo a Welcome");
+    setIsInitialized(true);
   }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      console.log("🔍 Vérification du statut d'authentification...");
-      const token = await AsyncStorage.getItem("userToken");
-      const userDataString = await AsyncStorage.getItem("userData");
-
-      if (token && userDataString) {
-        console.log("📱 Token et données utilisateur trouvés en local");
-        const userData = JSON.parse(userDataString);
-
-        // Vérifier si le token est encore valide
-        const isValid = await ApiService.validateToken(token);
-        console.log("🔍 Validation du token:", isValid);
-
-        if (isValid) {
-          setUser({ ...userData, token });
-          console.log("✅ Utilisateur restauré:", userData.username);
-        } else {
-          // Token invalide, nettoyer
-          console.log("❌ Token invalide, nettoyage...");
-          await AsyncStorage.multiRemove(["userToken", "userData"]);
-        }
-      } else {
-        console.log("📱 Aucune session trouvée");
-      }
-    } catch (error) {
-      console.error("❌ Erreur vérification auth:", error);
-    } finally {
-      setIsInitialized(true);
-      console.log("✅ AuthContext initialisé");
-    }
-  };
 
   const login = async (credentials: { email: string; password: string }) => {
     console.log("🔐 Début de la connexion pour:", credentials.email);
@@ -199,9 +168,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("🚪 Déconnexion...");
       await AsyncStorage.multiRemove(["userToken", "userData"]);
       setUser(null);
-      console.log(" Déconnexion réussie");
+      console.log("✅ Déconnexion réussie");
     } catch (error) {
-      console.error(" Erreur déconnexion:", error);
+      console.error("❌ Erreur déconnexion:", error);
     }
   };
 
@@ -233,7 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// test hook
+// Custom hook
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
 

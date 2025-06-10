@@ -5,9 +5,7 @@ import {
   Dimensions,
   StatusBar,
   ScrollView,
-} 
-
-from 'react-native';
+} from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -68,11 +66,6 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  const handlePhotoResult = (photoUri: string) => {
-    console.log('📸 Photo sélectionnée dans HomeScreen:', photoUri);
-    navigation.navigate('FriendsSelection', { photoUri });
-  };
-
   const handleTakePhotoFromStories = () => {
     // Navegar a la página de cámara al tocar "Ajouter à ma story"
     navigateToPage(1);
@@ -98,7 +91,6 @@ const HomeScreen: React.FC = () => {
         />
         
         <CameraPageComponent 
-          onPhotoResult={handlePhotoResult}
           colors={colors}
         />
         

@@ -19,6 +19,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../../App";
 import { ApiService } from "../services/ApiService";
+import { useAuth } from "../contexts/AuthContext";
 
 const { width, height } = Dimensions.get("window");
 
@@ -42,9 +43,10 @@ const FriendsSelectionScreen: React.FC = () => {
   const navigation = useNavigation<FriendsSelectionScreenNavigationProp>();
   const route = useRoute<FriendsSelectionScreenRouteProp>();
   const { photoUri, cameraType } = route.params;
+  const { user } = useAuth();
 
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [allUsers, setAllUsers] = useState<Friend[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
   const [duration, setDuration] = useState(3);
@@ -52,49 +54,51 @@ const FriendsSelectionScreen: React.FC = () => {
 
   const gradientColors: readonly [string, string] = ["#667eea", "#764ba2"];
 
+  // Mock users pour compléter si nécessaire
+  const mockUsers: Friend[] = [
+    { id: "test_alice", username: "alice_test", email: "alice@test.com" },
+    { id: "test_bob", username: "bob_test", email: "bob@test.com" },
+    { id: "test_charlie", username: "charlie_test", email: "charlie@test.com" },
+  ];
+
   useEffect(() => {
-    loadFriends();
+    loadAllUsers();
   }, []);
 
-  const loadFriends = async () => {
+  const loadAllUsers = async () => {
     setIsLoading(true);
     try {
-      console.log(" Chargement des amis...");
+      console.log("👥 Chargement de tous les utilisateurs...");
 
-      const response = await ApiService.getFriends();
+      // Essayer de récupérer tous les utilisateurs
+      const response = await ApiService.getAllUsers();
+      
+      if (response.success && response.data && Array.isArray(response.data)) {
+        let realUsers = response.data;
+        
+        // Filtrer l'utilisateur actuel (pas d'auto-envoi)
+        realUsers = realUsers.filter((u: Friend) => 
+          u.id !== user?.id && 
+          u.username !== user?.username && 
+          u.email !== user?.email
+        );
 
-      console.log(" Réponse API getFriends:", response);
-
-      if (response.success && response.data) {
-        let friendsArray: Friend[] = [];
-
-        if (Array.isArray(response.data)) {
-          friendsArray = response.data as Friend[];
-        } else if (response.data && typeof response.data === "object") {
-          const responseObj = response.data as any;
-
-          if (Array.isArray(responseObj.friends)) {
-            friendsArray = responseObj.friends as Friend[];
-          } else if (Array.isArray(responseObj.data)) {
-            friendsArray = responseObj.data as Friend[];
-          } else {
-            console.warn(
-              "⚠️ Structure de response.data inattendue:",
-              response.data
-            );
-            friendsArray = [];
-          }
-        }
-
-        console.log("Amis chargés:", friendsArray.length, "amis trouvés");
-        setFriends(friendsArray);
+        console.log("✅ Utilisateurs réels trouvés:", realUsers.length);
+        
+        // Combiner avec mock si nécessaire
+        const allAvailableUsers = realUsers.length > 0 
+          ? [...realUsers, ...mockUsers]
+          : mockUsers;
+        
+        setAllUsers(allAvailableUsers);
       } else {
-        console.log("⚠️ Aucun ami trouvé ou erreur API");
-        setFriends([]);
+        console.log("⚠️ Pas d'utilisateurs réels, utilisation mock uniquement");
+        setAllUsers(mockUsers);
       }
     } catch (error) {
-      console.error("❌ Erreur chargement amis:", error);
-      setFriends([]);
+      console.error("❌ Erreur chargement utilisateurs:", error);
+      // En cas d'erreur, utiliser mock users
+      setAllUsers(mockUsers);
     } finally {
       setIsLoading(false);
     }
@@ -102,87 +106,100 @@ const FriendsSelectionScreen: React.FC = () => {
 
   const handleSendSnap = async () => {
     if (!selectedFriend) {
-      Alert.alert("Erreur", "Veuillez sélectionner un ami");
+      Alert.alert("Erreur", "Veuillez sélectionner un destinataire");
       return;
     }
 
+    const selectedUser = allUsers.find(u => u.id === selectedFriend);
+    if (!selectedUser) return;
+
     setIsSending(true);
     try {
-      console.log(" Envoi du snap...", {
-        selectedFriend,
-        duration,
-        photoUri: photoUri.substring(0, 50) + "...",
+      console.log("📸 Envoi du snap à:", selectedUser.username);
+
+      // Usar el nuevo método que sigue la documentación
+      const snapData = {
+        to: selectedUser.id, // ✅ Usar ID, no username
+        duration: duration,
+        imageUri: photoUri
+      };
+
+      console.log('📤 Snap data (format API):', {
+        to: selectedUser.id,
+        username: selectedUser.username, // Solo para debug
+        duration: duration
       });
 
-      const formData = new FormData();
-      formData.append("to", selectedFriend);
-      formData.append("duration", duration.toString());
-      formData.append("image", {
-        uri: photoUri,
-        type: "image/jpeg",
-        name: "snap.jpg",
-      } as any);
-
-      const response = await ApiService.sendSnap(formData);
+      const response = await ApiService.sendSnap(snapData);
 
       if (response.success) {
-        Alert.alert("Succès", "Snap envoyé avec succès !", [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate("Home"),
-          },
-        ]);
+        Alert.alert(
+          "Succès", 
+          `Snap envoyé à ${selectedUser.username} pour ${duration} secondes !`, 
+          [{ text: "OK", onPress: () => navigation.navigate("Home") }]
+        );
       } else {
         Alert.alert("Erreur", response.message || "Erreur lors de l'envoi");
       }
     } catch (error) {
-      console.error(" Erreur envoi snap:", error);
+      console.error("❌ Erreur envoi snap:", error);
       Alert.alert("Erreur", "Erreur lors de l'envoi du snap");
     } finally {
       setIsSending(false);
     }
   };
 
-  const filteredFriends: Friend[] = Array.isArray(friends)
-    ? friends.filter(
-        (friend: Friend) =>
-          friend.username &&
-          friend.username.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
-
-  const renderFriend = (friend: Friend) => (
-    <Pressable
-      key={friend.id}
-      style={[
-        styles.friendItem,
-        selectedFriend === friend.id && styles.friendItemSelected,
-      ]}
-      onPress={() => setSelectedFriend(friend.id)}
-    >
-      <View
-        style={[
-          styles.friendAvatar,
-          selectedFriend === friend.id && styles.friendAvatarSelected,
-        ]}
-      >
-        <Text style={styles.friendAvatarText}>
-          {friend.username?.charAt(0).toUpperCase() || "?"}
-        </Text>
-      </View>
-      <Text
-        style={[
-          styles.friendName,
-          selectedFriend === friend.id && styles.friendNameSelected,
-        ]}
-      >
-        {friend.username || "Nom inconnu"}
-      </Text>
-      {selectedFriend === friend.id && (
-        <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-      )}
-    </Pressable>
+  // Filtrer utilisateurs selon recherche
+  const filteredUsers = allUsers.filter(user =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const renderUser = (userData: Friend) => {
+    const isRealUser = !userData.id.startsWith('test_');
+    
+    return (
+      <Pressable
+        key={userData.id}
+        style={[
+          styles.userItem,
+          selectedFriend === userData.id && styles.userItemSelected,
+        ]}
+        onPress={() => setSelectedFriend(userData.id)}
+      >
+        <View
+          style={[
+            styles.userAvatar,
+            { backgroundColor: isRealUser ? "#4CAF50" : "#FF9800" },
+            selectedFriend === userData.id && styles.userAvatarSelected,
+          ]}
+        >
+          <Text style={styles.userAvatarText}>
+            {userData.username?.charAt(0).toUpperCase() || "?"}
+          </Text>
+        </View>
+        
+        <View style={styles.userInfo}>
+          <Text
+            style={[
+              styles.userName,
+              selectedFriend === userData.id && styles.userNameSelected,
+            ]}
+          >
+            {userData.username}
+          </Text>
+          <Text style={styles.userEmail}>{userData.email}</Text>
+          <Text style={[styles.userType, { color: isRealUser ? "#4CAF50" : "#FF9800" }]}>
+            {isRealUser ? "👤 Utilisateur réel" : "🎭 Test"}
+          </Text>
+        </View>
+        
+        {selectedFriend === userData.id && (
+          <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
+        )}
+      </Pressable>
+    );
+  };
 
   const renderDurationOption = (value: number, label: string) => (
     <Pressable
@@ -233,10 +250,9 @@ const FriendsSelectionScreen: React.FC = () => {
           <View style={styles.searchContainer}>
             <BlurView intensity={20} style={styles.searchBlur}>
               <Ionicons name="search" size={16} color="rgba(255,255,255,0.7)" />
-
               <TextInput
                 style={styles.searchInput}
-                placeholder="Rechercher un ami"
+                placeholder="Rechercher un utilisateur"
                 placeholderTextColor="rgba(255,255,255,0.7)"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -244,11 +260,9 @@ const FriendsSelectionScreen: React.FC = () => {
             </BlurView>
           </View>
 
-          <View style={styles.friendsSection}>
+          <View style={styles.usersSection}>
             <Text style={styles.sectionTitle}>
-              {isLoading
-                ? "Chargement..."
-                : `Mes amis (${filteredFriends.length})`}
+              Utilisateurs disponibles ({filteredUsers.length})
             </Text>
 
             {isLoading ? (
@@ -257,28 +271,24 @@ const FriendsSelectionScreen: React.FC = () => {
                 color="#FFFFFF"
                 style={styles.loader}
               />
-            ) : filteredFriends.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons
                   name="people-outline"
                   size={48}
                   color="rgba(255,255,255,0.5)"
                 />
-                <Text style={styles.emptyText}>
-                  {searchQuery ? "Aucun ami trouvé" : "Aucun ami ajouté"}
-                </Text>
+                <Text style={styles.emptyText}>Aucun utilisateur trouvé</Text>
                 <Text style={styles.emptySubtext}>
-                  {searchQuery
-                    ? "Essayez un autre nom"
-                    : "Ajoutez des amis pour envoyer des snaps"}
+                  Essayez un autre terme de recherche
                 </Text>
               </View>
             ) : (
               <ScrollView
-                style={styles.friendsList}
+                style={styles.usersList}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredFriends.map(renderFriend)}
+                {filteredUsers.map(renderUser)}
               </ScrollView>
             )}
           </View>
@@ -296,7 +306,6 @@ const FriendsSelectionScreen: React.FC = () => {
               {renderDurationOption(3, "3s")}
               {renderDurationOption(5, "5s")}
               {renderDurationOption(10, "10s")}
-              {renderDurationOption(15, "15s")}
             </ScrollView>
           </View>
 
@@ -315,7 +324,7 @@ const FriendsSelectionScreen: React.FC = () => {
               ) : (
                 <>
                   <Ionicons name="send" size={20} color="#667eea" />
-                  <Text style={styles.sendButtonText}>Envoyer</Text>
+                  <Text style={styles.sendButtonText}>Envoyer Snap</Text>
                 </>
               )}
             </Pressable>
@@ -327,16 +336,9 @@ const FriendsSelectionScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-
+  container: { flex: 1 },
+  background: { flex: 1 },
+  safeArea: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -344,7 +346,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
-
   backButton: {
     width: 40,
     height: 40,
@@ -353,28 +354,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   headerTitle: {
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "700",
   },
-  placeholder: {
-    width: 40,
-  },
-
+  placeholder: { width: 40 },
   photoContainer: {
     alignItems: "center",
     marginBottom: 20,
   },
   photoPreview: {
-    width: 250,
-    height: 350,
+    width: 180,
+    height: 240,
     borderRadius: 15,
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.3)",
   },
-
   searchContainer: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -393,7 +389,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
   },
-
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 16,
@@ -401,14 +396,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 15,
   },
-
-  friendsSection: {
+  usersSection: {
     flex: 1,
     marginBottom: 20,
   },
-  loader: {
-    marginTop: 30,
-  },
+  loader: { marginTop: 30 },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
@@ -428,10 +420,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
   },
-  friendsList: {
+  usersList: {
     paddingHorizontal: 20,
   },
-  friendItem: {
+  userItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
@@ -441,37 +433,48 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.1)",
     gap: 12,
   },
-  friendItemSelected: {
+  userItemSelected: {
     backgroundColor: "rgba(255,255,255,0.25)",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.4)",
   },
-  friendAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.3)",
+  userAvatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
     justifyContent: "center",
     alignItems: "center",
   },
-  friendAvatarSelected: {
-    backgroundColor: "rgba(255,255,255,0.9)",
+  userAvatarSelected: {
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
   },
-  friendAvatarText: {
+  userAvatarText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
-  friendName: {
+  userInfo: {
     flex: 1,
+  },
+  userName: {
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
+    marginBottom: 2,
   },
-  friendNameSelected: {
+  userNameSelected: {
     fontWeight: "700",
   },
-
+  userEmail: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  userType: {
+    fontSize: 11,
+    fontWeight: "500",
+  },
   durationSection: {
     marginBottom: 25,
   },
@@ -501,7 +504,6 @@ const styles = StyleSheet.create({
   durationTextSelected: {
     color: "#667eea",
   },
-
   sendContainer: {
     paddingHorizontal: 20,
     paddingBottom: 20,

@@ -63,6 +63,7 @@ const AppNavigator: React.FC = () => {
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
+        
         <Stack.Screen
           name="FriendsSelection"
           component={FriendsSelectionScreen}
@@ -84,6 +85,7 @@ const AppNavigator: React.FC = () => {
             },
           }}
         />
+        
         <Stack.Screen
           name="EditProfileScreen"
           component={EditProfileScreen}
@@ -105,11 +107,13 @@ const AppNavigator: React.FC = () => {
             },
           }}
         />
+        
         <Stack.Screen
           name="ProfileScreen"
           component={ProfileScreen}
           options={{ gestureDirection: "horizontal" }}
         />
+        
         <Stack.Screen
           name="CameraPage"
           component={HomeScreen}
