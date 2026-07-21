@@ -150,3 +150,4 @@ Realizado con **Arnaud Mazoire** ([ArnaudMzz](https://github.com/ArnaudMzz)) —
 React Native 0.79, Expo 53, TypeScript, React Navigation, Expo Camera, Expo AV, Expo Blur, Expo Linear Gradient, React Native Animatable, Axios, AsyncStorage.
 
 </details>
+
